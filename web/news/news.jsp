@@ -1,6 +1,7 @@
 <%@ page import="news.portal.bitlab.kz.db.User" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="news.portal.bitlab.kz.db.News" %><%--
+<%@ page import="news.portal.bitlab.kz.db.News" %>
+<%@ page import="news.portal.bitlab.kz.db.Comment" %><%--
   Created by IntelliJ IDEA.
   User: dinmukhambetturysbay
   Date: 09.05.2023
@@ -15,35 +16,13 @@
 </head>
 <body>
 <%--  header--%>
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
-  <div class="container">
-    <div class="navbar-brand">
-      <img src="logo.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-      News
-    </div>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <%
-          if (request.getAttribute("user") != null) {
-            User user = (User) request.getAttribute("user");
-            if(user.getRole_id() == 1){
-        %>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Add news</a>
-            </li>
-        <%
-            }
-          }
-        %>
-      </ul>
-    </div>
-  </div>
-</nav>
+<%@include file="../navbar.jsp"%>
 
 <%
+    ArrayList<Comment> commentArrayList  = (ArrayList<Comment>) request.getAttribute("commentArrayList");
+    ArrayList<User> userArrayList  = (ArrayList<User>) request.getAttribute("userArrayList");
+    userArrayList.size();
+    commentArrayList.size();
     ArrayList<News> newsArrayList = (ArrayList<News>) request.getAttribute("news");
     if(newsArrayList != null){
         for (News news :
@@ -66,9 +45,11 @@
                                 User user = (User) request.getAttribute("user");
                                 if(user.getRole_id() == 1){
                         %>
+
                         <div class="col-2">
-                            <button type="button" class="btn btn-outline-info">Change</button>
+                            <a class="btn btn-outline-info" href="/change?news_id=<%=news.getId()%>">Change</a>
                         </div>
+
                         <form class="col-2" action="/delete-news" method="post">
                             <div>
                                 <input type="hidden" name="news_id" value="<%=news.getId()%>">
@@ -77,12 +58,60 @@
                         </form>
 
                         <%
+                            }
+                        %>
+
+
+
+<%--                        COMMENTS SECTION--%>
+                        <%
+                            if(commentArrayList != null){
+                                for(Comment comment: commentArrayList){
+                                    if(comment.getNews_id() == news.getId()){
+                        %>
+                            <div class="card-footer">
+                                <blockquote class="blockquote mb-0">
+                                        <p><%=comment.getComment()%></p>
+                                        <footer class="blockquote-footer">
+                                            <%
+                                                for (User user1: userArrayList) {
+                                                    if(user1.getId() == comment.getUser_id()){
+                                            %>
+                                                <%=user1.getFullName()%>
+                                            <%
+                                                    }
+                                                }
+                                            %>
+                                        </footer>
+                                </blockquote>
+                            </div>
+
+                        <%
+                                    }
                                 }
+                            }
+
+                        %>
+
+                        <%
+
                                 if(user.getRole_id() == 2){
 
                         %>
-                            <div class="col-2">
-                                <button type="button" class="btn btn-outline-info">Leave comment</button>
+                            <div class="card-footer">
+                                <form action="/add-comment" method="post">
+                                    <input type="hidden" name="news_id" value="<%=news.getId()%>">
+                                    <input type="hidden" name="user_id" value="<%=user.getId()%>">
+                                    <div class="form-floating">
+                                        <textarea rows="2" style="height:10%;" class="form-control" name="comment" placeholder="Leave a comment here" id="floatingTextarea">
+                                        </textarea>
+                                        <label for="floatingTextarea">Comments</label>
+                                    </div>
+                                    <div class="col-4 pt-2">
+                                        <button type="submit" class="btn btn-outline-info">Leave comment</button>
+                                    </div>
+                                </form>
+
                             </div>
                         <%
                                 }
@@ -96,9 +125,5 @@
         }
     }
 %>
-<%%>
-<%%>
-<%%>
-
 </body>
 </html>

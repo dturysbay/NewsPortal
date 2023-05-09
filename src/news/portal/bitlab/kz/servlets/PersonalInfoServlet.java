@@ -10,20 +10,30 @@ import news.portal.bitlab.kz.db.User;
 
 import java.io.IOException;
 
-@WebServlet(value = "/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet(value = "/personal-info")
+public class PersonalInfoServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("authPages/login.jsp").forward(request,response);
+        User user = LoginServlet.getUser();
+        request.setAttribute("user",user);
+        request.getRequestDispatcher("personal/personal_info.jsp").forward(request,response);
     }
-    static User user = null;
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Long id = Long.parseLong(request.getParameter("user_id"));
+        String fullName = request.getParameter("full_name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        user = DBConnection.getUser(email,password);
+
+        User user = DBConnection.getUserById(id);
         if(user!=null){
-            request.setAttribute("user",user);
+            user.setFullName(fullName);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setRole_id(1);
+            DBConnection.updateUserInfo(user);
             response.sendRedirect("/news");
         }else{
             String errorMessage = "Sorry, user not found";
@@ -31,10 +41,4 @@ public class LoginServlet extends HttpServlet {
             request.getRequestDispatcher("authPages/login.jsp").forward(request,response);
         }
     }
-
-    public static User getUser(){
-        return user;
-    }
-
-
 }

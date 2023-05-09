@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import news.portal.bitlab.kz.db.Comment;
 import news.portal.bitlab.kz.db.DBConnection;
 import news.portal.bitlab.kz.db.News;
 import news.portal.bitlab.kz.db.User;
@@ -18,16 +19,13 @@ public class NewsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ArrayList<News> news = DBConnection.getNews();
+        ArrayList<User> userArrayList = DBConnection.getUsers();
+        ArrayList<Comment> commentArrayList = DBConnection.getComments();
 
         request.setAttribute("news",news);
         request.setAttribute("user",user);
+        request.setAttribute("userArrayList",userArrayList);
+        request.setAttribute("commentArrayList",commentArrayList);
         request.getRequestDispatcher("news/news.jsp").forward(request,response);
     }
-
-//
-//    @Override
-//    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//
-//
-//    }
 }
